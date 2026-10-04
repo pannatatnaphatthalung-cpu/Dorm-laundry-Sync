@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dorm Laundry Sync</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F3F5FA;--card:#fff;--text:#0F1A33;--muted:#6A7690;--line:#E5E9F2;--p:#3550FF;--green:#12A877;--red:#E5484D;--yellow:#F0A800;--gray:#98A2B5;--violet:#7C5CFA;--sh:0 8px 24px rgba(15,26,51,.07);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A101F;--card:#151E35;--text:#E8ECF6;--muted:#94A1BD;--line:#25314E;--sh:0 8px 24px rgba(0,0,0,.4)}}
+:root[data-theme="dark"]{--bg:#0A101F;--card:#151E35;--text:#E8ECF6;--muted:#94A1BD;--line:#25314E;--sh:0 8px 24px rgba(0,0,0,.4)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font-family:'Prompt',system-ui,sans-serif;font-size:15px;display:flex;justify-content:center}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+h1,h2,h3,p{margin:0}
+.ic{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+#app{position:relative;width:100%;max-width:480px;height:100%;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);box-shadow:0 0 40px rgba(0,0,0,.12)}
+#top{display:none;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--card);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:38px;height:38px;border-radius:12px;background:var(--p);color:#fff;display:grid;place-items:center}
+.brand b{display:block;font-size:16px;line-height:1.2}.brand small{color:var(--muted);font-size:11px}
+#bell{position:relative;width:42px;height:42px;border-radius:14px;background:var(--bg);display:grid;place-items:center}
+#bell i{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font:600 11px/18px 'Prompt';text-align:center;font-style:normal;display:none;padding:0 4px}
+.view{display:none;flex:1;overflow-y:auto;padding:18px 18px 100px}.view.active{display:block}
+.title{font-size:22px;font-weight:700}.sub{color:var(--muted);font-size:13px}
+.card{background:var(--card);border-radius:22px;padding:16px;box-shadow:var(--sh)}
+.btn{display:block;width:100%;padding:14px;border-radius:15px;font-weight:600;background:var(--p);color:#fff;text-align:center;transition:transform .15s}
+.btn:active{transform:scale(.97)}.btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--text)}.btn.yellow{background:var(--yellow);color:#2b2100}.btn.danger{background:none;color:var(--red);border:1px solid var(--red)}.btn[disabled]{opacity:.55}
+.gap{margin-top:10px}
+/* login */
+#v-login,#v-verify,#v-setup{background:linear-gradient(165deg,#0F1A33,#2540D9);color:#fff;padding-top:60px}
+.lg{width:72px;height:72px;border-radius:24px;background:#fff;color:var(--p);display:grid;place-items:center;margin-bottom:20px}
+.field{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--card);color:var(--text);font:inherit}
+#v-login .field,#v-verify .field,#v-setup .field{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.28);color:#fff;margin-top:24px}
+#v-login .field::placeholder,#v-verify .field::placeholder,#v-setup .field::placeholder{color:rgba(255,255,255,.6)}
+.err{color:#FFB4B7;font-size:12px;min-height:20px;margin:6px 0 8px}
+.div{display:flex;align-items:center;gap:10px;margin:22px 0 14px;color:rgba(255,255,255,.65);font-size:12px}.div::before,.div::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.22)}
+.soc{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.soc button{background:#fff;color:#0F1A33;border-radius:14px;padding:12px 4px;font-size:13px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:6px}
+.soc i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font:700 13px 'Prompt'}
+/* home */
+.hello{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--violet));color:#fff;display:grid;place-items:center;font-weight:700}
+.bars{display:flex;align-items:flex-end;gap:5px;height:60px;margin:12px 0 4px}.bars div{flex:1;border-radius:6px;background:var(--line)}.bars .low{background:#9BE0C4}.bars .now{background:var(--p)}
+.chip{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;background:color-mix(in srgb,var(--c,var(--p)) 15%,transparent);color:var(--c,var(--p))}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:14px 0;font-size:12px;color:var(--muted)}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.m{background:var(--card);border-radius:22px;padding:14px;box-shadow:var(--sh);text-align:left;border:2px solid transparent;display:flex;flex-direction:column;gap:6px;transition:transform .15s}
+.m:active{transform:scale(.97)}.m.own{border-color:var(--p)}
+.mh{display:flex;justify-content:space-between;align-items:center}.mh b{font-size:16px}
+.drum{width:60px;height:60px;border-radius:50%;border:6px solid var(--c);margin:6px auto;display:grid;place-items:center;color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--card))}
+.drum::after{content:"";width:26px;height:26px;border-radius:50%;background:color-mix(in srgb,var(--c) 40%,transparent)}
+.drum.ico::after{display:none}
+.s-wash .drum::after{background:conic-gradient(var(--c),transparent 70%);animation:sp 1.4s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.tm{text-align:center;font-size:13px;color:var(--muted);min-height:20px;font-variant-numeric:tabular-nums}
+.go{background:var(--green);color:#fff;border-radius:11px;padding:7px;text-align:center;font-weight:600;font-size:13px}
+.s-free{--c:var(--green)}.s-wash{--c:var(--red)}.s-done{--c:var(--yellow)}.s-broken{--c:var(--gray);opacity:.8}.s-mine{--c:var(--p)}.s-open{--c:var(--yellow)}.s-res{--c:var(--p)}
+.agree{display:flex;gap:10px;align-items:flex-start;margin-top:14px;font-size:13px;opacity:.9}.agree input{width:20px;height:20px;margin:0;flex:none;accent-color:#fff}
+.ob{display:flex;align-items:center;gap:10px;padding:8px 0;color:var(--muted)}.ob i{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:12px;flex:none}.ob.ok{color:var(--text)}.ob.ok i{background:var(--green);border-color:var(--green);color:#fff}
+#otp{text-align:center;font-size:20px}#otp::placeholder{font-size:15px}#otp:not(:placeholder-shown){letter-spacing:6px}
+/* laundry */
+.hero{text-align:center;padding:26px 16px}
+.hero .drum{width:112px;height:112px;border-width:10px}.hero .drum::after{width:50px;height:50px}
+.big{font-size:48px;font-weight:700;font-variant-numeric:tabular-nums;margin:6px 0}
+.steps{display:flex;margin:18px 0}.steps span{flex:1;font-size:12px;color:var(--muted);padding-top:16px;position:relative}
+.steps span::before{content:"";position:absolute;top:0;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--line)}.steps .on{color:var(--text);font-weight:600}.steps .on::before{background:var(--p)}
+.note{background:var(--bg);border-radius:14px;padding:12px;font-size:13px;color:var(--muted);margin-bottom:14px;text-align:left}
+.empty{text-align:center;padding:44px 20px;color:var(--muted)}
+/* lists */
+.wal{background:linear-gradient(135deg,#2540D9,#7C5CFA);color:#fff;border-radius:24px;padding:20px}
+.row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}.row:last-child{border:0}
+.row .t{flex:1;min-width:0}.row .t b{display:block;font-weight:500}
+.ico{width:38px;height:38px;border-radius:12px;background:color-mix(in srgb,var(--p) 12%,transparent);color:var(--p);display:grid;place-items:center;flex:none}
+.pl{color:var(--green);font-weight:600}.mi{font-weight:600}
+.back{display:flex;align-items:center;gap:6px;color:var(--muted);margin-bottom:12px;font-weight:500}
+.sw input{appearance:none;-webkit-appearance:none;width:46px;height:28px;border-radius:99px;background:var(--line);position:relative;transition:.2s;cursor:pointer;margin:0}
+.sw input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.sw input:checked{background:var(--p)}.sw input:checked::after{left:21px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.seg button{padding:11px 6px;border-radius:12px;border:1.5px solid var(--line);font-size:13px;font-weight:500}.seg .on{border-color:var(--p);background:color-mix(in srgb,var(--p) 10%,transparent);color:var(--p)}
+.nt{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}.nt:last-child{border:0}
+.nt .u{width:9px;height:9px;border-radius:50%;background:var(--p);margin-top:7px;flex:none}.nt .u.r{background:transparent}
+.step{display:flex;gap:12px;padding:10px 0}.step b{width:28px;height:28px;border-radius:50%;background:var(--p);color:#fff;display:grid;place-items:center;font-size:13px;flex:none}
+textarea.field{min-height:100px;resize:none;margin-top:10px}
+/* scanner */
+#v-scan{position:absolute;inset:0;z-index:30;background:#05080F;color:#fff;padding:0;display:none;overflow:hidden}
+#v-scan.active{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.frame{width:240px;height:240px;position:relative;border-radius:28px;border:3px solid #fff;box-shadow:0 0 0 999px rgba(0,0,0,.55)}
+.frame i{position:absolute;left:8px;right:8px;height:3px;background:var(--green);box-shadow:0 0 14px var(--green);animation:sc 1.8s ease-in-out infinite alternate}@keyframes sc{from{top:10px}to{top:225px}}
+.frame.ok{border-color:var(--green)}.frame.ok i{display:none}
+#sb{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));left:16px;background:rgba(255,255,255,.15);border-radius:99px;padding:8px 14px}
+#nav{position:absolute;bottom:0;left:0;right:0;display:none;background:var(--card);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:10}#nav.show{display:flex}
+#nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--muted);padding:5px 0}#nav .on{color:var(--p);font-weight:600}
+#modal{position:absolute;inset:0;z-index:40;background:rgba(10,15,30,.55);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}#modal.show{opacity:1;pointer-events:auto}
+.sheet{width:100%;max-height:92%;overflow-y:auto;background:var(--card);border-radius:28px 28px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}#modal.show .sheet{transform:none}
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}.chips button{padding:11px 0;border-radius:12px;border:1.5px solid var(--line);font-weight:600}.chips .on{border-color:var(--p);background:color-mix(in srgb,var(--p) 10%,transparent);color:var(--p)}
+.pm{display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:15px;border:2px solid var(--line);margin-bottom:10px;text-align:left}.pm.on{border-color:var(--p);background:color-mix(in srgb,var(--p) 8%,transparent)}
+.pm b{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#fff;font-size:12px;flex:none}
+.kv{display:flex;justify-content:space-between;padding:8px 0}.warn{color:var(--red);font-size:13px;margin:8px 0}
+#toasts{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));left:12px;right:12px;z-index:60;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:#0F1A33;color:#fff;padding:12px 16px;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:in .3s;font-size:14px}.toast.out{opacity:0;transform:translateY(-10px);transition:.3s}@keyframes in{from{opacity:0;transform:translateY(-14px)}}
+#push{position:absolute;top:calc(66px + env(safe-area-inset-top,0px));left:12px;right:12px;z-index:70;background:var(--card);border-left:5px solid var(--yellow);border-radius:16px;padding:12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.25);transform:translateY(-180px);transition:transform .4s cubic-bezier(.2,.8,.2,1);text-align:left}#push.show{transform:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-washer" viewBox="0 0 24 24"><rect x="4" y="2.5" width="16" height="19" rx="3"/><circle cx="12" cy="14" r="4.5"/><path d="M8 6h.01M11 6h.01"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 8a3 3 0 0 1 3-3h12v3"/><rect x="3" y="8" width="18" height="12" rx="3"/><circle cx="16.5" cy="14" r="1"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 0 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M4 12h16"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.7M12 17h.01"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M16 8l4 4-4 4M20 12H9"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18h2"/></symbol>
+<symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14 7a4 4 0 0 1 5-4l-3 3 1 3 3 1 3-3a4 4 0 0 1-5 5L8 21a2 2 0 0 1-3-3z"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M8 8h6"/></symbol>
+</defs></svg>
+
+<div id="app">
+  <header id="top">
+    <div class="brand"><div class="mark" id="mk"></div><div><b>หอพักนักศึกษา ม.อ.</b><small>Dorm Laundry Sync</small></div></div>
+    <button id="bell" aria-label="การแจ้งเตือน" onclick="sub('notif',main)"><i id="bc"></i></button>
+  </header>
+
+  <section id="v-login" class="view active">
+    <div class="lg" id="lg"></div>
+    <h1 style="font-size:30px;font-weight:700">Dorm Laundry Sync</h1>
+    <p style="opacity:.8;margin-top:6px">ระบบจัดการคิวเครื่องซักผ้าอัจฉริยะสำหรับหอพักนักศึกษา</p>
+    <input id="email" class="field" type="email" inputmode="email" placeholder="อีเมล @psu.ac.th หรือเบอร์โทรศัพท์" aria-label="อีเมลมหาวิทยาลัยหรือเบอร์โทรศัพท์">
+    <div id="err" class="err"></div>
+    <button class="btn" style="background:#fff;color:#0F1A33" onclick="loginMail()">เข้าสู่ระบบ</button>
+    <div class="div">หรือเข้าสู่ระบบด้วย</div>
+    <div class="soc">
+      <button onclick="loginSoc('Google','somchai.j@gmail.com')"><i style="background:#EA4335">G</i>Google</button>
+      <button onclick="loginSoc('LINE','somchai.j@hotmail.com')"><i style="background:#06C755">L</i>LINE</button>
+      <button onclick="loginSoc('Facebook','somchai.j@outlook.com')"><i style="background:#1877F2">f</i>Facebook</button>
+    </div>
+  </section>
+
+  <section id="v-verify" class="view">
+    <div class="lg" id="lg2"></div>
+    <h1 style="font-size:26px;font-weight:700">ยืนยันตัวตนด้วยเบอร์โทรศัพท์</h1>
+    <div id="vb"></div>
+    <button class="btn gap" style="background:none;color:#fff;opacity:.8" onclick="show('login')">ย้อนกลับ</button>
+  </section>
+
+  <section id="v-setup" class="view">
+    <div class="lg" id="lg3"></div>
+    <h1 style="font-size:26px;font-weight:700">ยินดีต้อนรับ</h1>
+    <p style="opacity:.8;margin-top:6px">ตั้งชื่อที่แสดงในแอป เปลี่ยนได้ภายหลังที่เมนูบัญชีผู้ใช้</p>
+    <input id="sn" class="field" maxlength="24" placeholder="ชื่อที่แสดง" aria-label="ชื่อที่แสดง">
+    <label class="agree"><input type="checkbox" id="ag"><span>ฉันยอมรับเงื่อนไขการใช้งานและนโยบายความเป็นส่วนตัว</span></label>
+    <div id="se" class="err"></div>
+    <button class="btn" style="background:#fff;color:#0F1A33" onclick="finishSetup()">เริ่มใช้งาน</button>
+  </section>
+
+  <section id="v-home" class="view">
+    <div class="hello"><div><h2 class="title" id="hello"></h2><p class="sub">เลือกเครื่องที่ว่างเพื่อจองได้เลย</p></div><div class="av" id="av1"></div></div><div id="ob"></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div><b>ความหนาแน่นตอนนี้</b><p class="sub">แท่งสีเขียว = ช่วงที่คนน้อย</p></div><span class="chip" id="cc"></span></div>
+      <div class="bars" id="bars"></div>
+      <div style="display:flex;justify-content:space-between" class="sub"><span>08:00</span><span>14:00</span><span>20:00</span></div>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--green)"></i>ว่าง</span><span><i class="dot" style="background:var(--red)"></i>กำลังซัก</span><span><i class="dot" style="background:var(--yellow)"></i>รอเก็บผ้า</span><span><i class="dot" style="background:var(--gray)"></i>เครื่องเสีย</span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="v-laundry" class="view"><h2 class="title" style="margin-bottom:14px">ผ้าของฉัน</h2><div id="lb"></div></section>
+  <section id="v-wallet" class="view"><h2 class="title" style="margin-bottom:14px">กระเป๋าเงิน</h2><div id="wb"></div></section>
+  <section id="v-profile" class="view"><div id="pb"></div></section>
+  <section id="v-sub" class="view"><button class="back" onclick="show(subBack)"><span id="bk"></span>ย้อนกลับ</button><h2 class="title" id="st" style="margin-bottom:14px"></h2><div id="sbd"></div></section>
+
+  <section id="v-scan" class="view">
+    <button id="sb" onclick="show('laundry')">ย้อนกลับ</button>
+    <div class="frame" id="frame" role="button" tabindex="0" aria-label="แตะเพื่อสแกน" onclick="doScan()" onkeydown="if(event.key==='Enter')doScan()"><i></i></div>
+    <p style="margin-top:28px;font-weight:600" id="stx">เล็งกล้องไปที่ QR บนเครื่อง</p>
+    <p class="sub" style="margin-top:4px">(เดโม: แตะที่กรอบเพื่อจำลองการสแกน)</p>
+  </section>
+
+  <nav id="nav">
+    <button data-v="home" onclick="show('home')"></button><button data-v="laundry" onclick="show('laundry')"></button><button data-v="wallet" onclick="show('wallet')"></button><button data-v="profile" onclick="show('profile')"></button>
+  </nav>
+  <div id="modal" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet"></div></div>
+  <div id="push" role="alert" onclick="$('#push').classList.remove('show');sub('notif',main)"></div>
+  <div id="toasts" aria-live="polite"></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), MIN=6e4, PRICE=30, WASH=45, RES=15, OPEN=5;
+const nm=id=>String(id).padStart(2,'0');
+const ic=(n,s=22)=>`<svg class="ic" width="${s}" height="${s}"><use href="#i-${n}"/></svg>`;
+const ago=(d,h,m)=>{const t=new Date();t.setDate(t.getDate()-d);t.setHours(h,m,0,0);return t};
+const fd=d=>d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}), ft=d=>d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',hour12:false})+' น.';
+const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+const mn=ms=>Math.max(0,Math.ceil(ms/MIN));
+
+/* ---------- state (sim = simulated clock in ms; speed multiplies real time) ---------- */
+let sim=Date.now();
+const S={name:'',email:'',bal:0,tm:null,speed:1,set:{wash:true,late:true,pay:true,news:false}};
+const machines=[{id:1,st:'wash',end:sim+22*MIN,q:1},{id:2,st:'free',nxt:sim+9*MIN},{id:3,st:'free',nxt:sim+14*MIN},{id:4,st:'wash',end:sim+5*MIN,q:1},{id:5,st:'done',at:sim-12*MIN,coll:Infinity,q:1,queued:true},{id:6,st:'broken'}];
+let order=null,notifs=[],main='home',subBack='profile',gridSig='',lastPh='';
+const txns=[];
+const hist=[];
+
+/* ---------- navigation ---------- */
+const NAV=[['home','home','หน้าหลัก'],['laundry','washer','ผ้าของฉัน'],['wallet','wallet','กระเป๋าเงิน'],['profile','user','โปรไฟล์']];
+$('#nav').innerHTML=NAV.map(n=>`<button data-v="${n[0]}" onclick="show('${n[0]}')">${ic(n[1])}${n[2]}</button>`).join('');
+$('#mk').innerHTML=ic('washer',22);$('#lg').innerHTML=ic('washer',40);$('#lg2').innerHTML=ic('washer',40);$('#lg3').innerHTML=ic('washer',40);$('#bell').insertAdjacentHTML('afterbegin',ic('bell',22));$('#bk').innerHTML=ic('back',18);
+function show(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.toggle('active',e.id==='v-'+v));
+  if(NAV.some(n=>n[0]===v))main=v;
+  const app=!['login','scan','verify','setup'].includes(v);
+  $('#top').style.display=app?'flex':'none';$('#nav').classList.toggle('show',app);
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===main));
+  ({home:renderHome,laundry:renderLaundry,wallet:renderWallet,profile:renderProfile})[v]?.();
+  if(v==='scan'){$('#frame').classList.remove('ok');$('#stx').textContent='เล็งกล้องไปที่ QR บนเครื่อง'}
+}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;$('#toasts').append(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),300)},2600)}
+function openSheet(h){$('#sheet').innerHTML=h;$('#modal').classList.add('show')}
+function closeSheet(){$('#modal').classList.remove('show')}
+
+/* ---------- notifications ---------- */
+function notify(key,title,body,go='laundry'){
+  if(key&&!S.set[key])return;
+  notifs.unshift({title,body,ts:new Date(),read:false,go});
+  $('#push').innerHTML=`<b>${title}</b><p class="sub" style="margin-top:2px;color:var(--text)">${body}</p>`;
+  $('#push').classList.add('show');clearTimeout(notify.t);notify.t=setTimeout(()=>$('#push').classList.remove('show'),5000);
+  badge();
+}
+function badge(){const n=notifs.filter(x=>!x.read).length,b=$('#bc');b.style.display=n?'block':'none';b.textContent=n}
+
+/* ---------- login ---------- */
+let pend=null,otpPhone='';
+function enter(email,name,phone=''){pend={email,name};vStep(1,phone)}
+function vStep(n,ph=''){
+  show('verify');
+  $('#vb').innerHTML=n===1?`<p style="opacity:.8;margin-top:6px">เพื่อความปลอดภัย ทุกบัญชีต้องยืนยันตัวตนด้วยเบอร์โทรศัพท์</p><input id="vph" class="field" inputmode="numeric" maxlength="10" placeholder="เบอร์โทรศัพท์ 08XXXXXXXX" aria-label="เบอร์โทรศัพท์" value="${ph}"><div id="ve" class="err"></div><button class="btn" style="background:#fff;color:#0F1A33" onclick="sendOtp()">ส่งรหัส OTP</button>`
+  :`<p style="opacity:.8;margin-top:6px">ส่งรหัส 6 หลักไปที่ ${mask(otpPhone)} แล้ว<br><small>(เดโม: ใช้รหัส 123456)</small></p><input id="otp" class="field" inputmode="numeric" maxlength="6" placeholder="รหัส OTP 6 หลัก" aria-label="รหัส OTP"><div id="ve" class="err"></div><button class="btn" style="background:#fff;color:#0F1A33" onclick="checkOtp()">ยืนยันตัวตน</button><button class="btn gap" style="background:none;color:#fff;opacity:.8" onclick="vStep(1,otpPhone)">เปลี่ยนเบอร์ / ส่งรหัสอีกครั้ง</button>`;
+}
+function sendOtp(){const v=$('#vph').value.trim();if(!/^0\d{9}$/.test(v)){$('#ve').textContent='กรุณากรอกเบอร์โทรศัพท์ 10 หลักที่ขึ้นต้นด้วย 0';return}otpPhone=v;toast('ส่งรหัส OTP แล้ว');vStep(2)}
+function checkOtp(){if($('#otp').value.trim()!=='123456'){$('#ve').textContent='รหัส OTP ไม่ถูกต้อง';return}S.email=pend.email;S.phone=otpPhone;if(S.created){toast('ยืนยันตัวตนสำเร็จ');return show('home')}vSetup()}
+function vSetup(){show('setup');$('#sn').value=pend.name;$('#ag').checked=false;$('#se').textContent=''}
+function finishSetup(){const v=$('#sn').value.trim();if(!v){$('#se').textContent='กรุณากรอกชื่อที่แสดง';return}if(!$('#ag').checked){$('#se').textContent='กรุณายอมรับเงื่อนไขการใช้งานเพื่อดำเนินการต่อ';return}S.name=v;S.created=true;toast('สร้างบัญชีสำเร็จ');notify('pay','ยินดีต้อนรับสู่ Dorm Laundry Sync','เติมเงินเข้ากระเป๋าเพื่อเริ่มจองเครื่องซักผ้า','wallet');show('home')}
+function loginMail(){const v=$('#email').value.trim();if(/^0\d{9}$/.test(v)){$('#err').textContent='';return enter(v,'ผู้ใช้ '+v.slice(-4),v)}if(/^[^\s@]+@psu\.ac\.th$/i.test(v)){$('#err').textContent='';return enter(v,v.split('@')[0])}$('#err').textContent='กรุณากรอกอีเมล @psu.ac.th หรือเบอร์โทรศัพท์ 10 หลัก'}
+function loginSoc(p,mail){enter(mail,'สมชาย')}
+$('#email').addEventListener('keydown',e=>e.key==='Enter'&&loginMail());
+function logout(){S.phone='';order=null;machines.forEach(m=>{if(m.st==='mine')m.st='free'});show('login');toast('ออกจากระบบแล้ว')}
+
+/* ---------- home ---------- */
+const crowd=[20,25,35,50,70,60,45,40,55,80,90,75,50];
+const LBL={free:'ว่าง',wash:'กำลังซัก',done:'รอเก็บผ้า',broken:'เครื่องเสีย',mine:'จองแล้ว',res:'จองแล้ว',open:'รอเก็บผ้า'};
+const tmTxt=m=>({res:()=>'รอสแกน QR '+mn(m.sc-sim)+' นาที',wash:()=>'เหลือ '+mn(m.end-sim)+' นาที'+(m.q?' · คิว '+m.q:''),done:()=>{const l=Math.floor((sim-m.at)/MIN);return l<1?'เพิ่งซักเสร็จ':'เสร็จมา '+l+' นาที'},mine:()=>order.ph==='load'?'รอใส่ผ้า · กดสตาร์ท':'เหลือ '+mn(order.end-sim)+' นาที',open:()=>'มาช้า '+Math.floor((sim-m.at)/MIN)+' นาที · จองต่อได้',free:()=>'พร้อมใช้งาน',broken:()=>'แจ้งช่างแล้ว'})[m.st]();
+function renderHome(){
+  $('#hello').textContent='สวัสดี, '+S.name;$('#av1').textContent=S.name[0]||'?';
+  const i=Math.min(12,Math.max(0,new Date().getHours()-8)),c=crowd[i];
+  $('#bars').innerHTML=crowd.map((v,k)=>`<div class="${k===i?'now':v<40?'low':''}" style="height:${v*.6+8}%"></div>`).join('');
+  const cc=$('#cc');cc.textContent=c<40?'ว่าง':c<70?'ปานกลาง':'หนาแน่น';cc.style.setProperty('--c',c<40?'var(--green)':c<70?'var(--yellow)':'var(--red)');
+  gridSig='';updGrid();renderOb();
+}
+function renderOb(){
+  const el=$('#ob');if(hist.length||order){el.innerHTML='';return}
+  const done=[true,txns.some(t=>t.a>0),false],st=['ยืนยันเบอร์โทรศัพท์','เติมเงินเข้ากระเป๋า','เลือกเครื่องสีเขียวแล้วกดจอง'];
+  el.innerHTML=`<div class="card" style="margin-bottom:14px"><b>เริ่มใช้งานใน 3 ขั้นตอน</b>${st.map((t,i)=>`<div class="ob ${done[i]?'ok':''}"><i>${done[i]?ic('check',14):i+1}</i><span>${t}</span></div>`).join('')}${done[1]?'':'<button class="btn gap" style="margin-top:14px" onclick="pendBook=null;openTopup()">เติมเงินเพื่อเริ่มจอง</button>'}</div>`;
+}
+const tile=m=>`<button class="m s-${m.st} ${order&&order.id===m.id?'own':''}" onclick="tap(${m.id})" aria-label="เครื่อง ${nm(m.id)} ${LBL[m.st]}">
+ <div class="mh"><b>${nm(m.id)}</b><span class="chip" style="--c:var(--c)">${LBL[m.st]}</span></div>
+ <div class="drum ${m.st==='broken'?'ico':''}">${m.st==='broken'?ic('wrench',24):''}</div>
+ <div class="tm" id="tm${m.id}">${tmTxt(m)}</div>${m.st==='free'||m.st==='open'?`<div class="go">จอง</div>`:''}</button>`;
+function updGrid(){
+  const sig=machines.map(m=>m.st).join()+(order?order.id:'');
+  if(sig!==gridSig){gridSig=sig;$('#grid').innerHTML=machines.map(tile).join('')}
+  else machines.forEach(m=>{const e=$('#tm'+m.id);if(e)e.textContent=tmTxt(m)});
+}
+function tap(id){
+  const m=machines.find(x=>x.id===id);
+  if(m.st==='free'||m.st==='open')return book(id);
+  if(m.st==='mine'||(order&&order.id===id))return show('laundry');
+  toast({res:'มีผู้ใช้จองเครื่องนี้แล้ว รอสแกน QR',wash:'เครื่องนี้กำลังซักอยู่',done:'มีผ้ารอเจ้าของมาเก็บ',broken:'เครื่องนี้ใช้งานไม่ได้ แจ้งช่างแล้ว'}[m.st]);
+}
+
+/* ---------- booking: deduct straight from wallet ---------- */
+function book(id){if(!['free','open'].includes(machines.find(m=>m.id===id).st))return toast('เครื่องนี้เพิ่งมีผู้ใช้จองไปแล้ว');
+  if(order)return toast('คุณมีเครื่องที่จองอยู่แล้ว');
+  const ok=S.bal>=PRICE;
+  openSheet(`<h3 style="font-size:19px">จองเครื่อง ${nm(id)}</h3><p class="sub">หักจากกระเป๋าเงินทันที และต้องสแกน QR ที่เครื่องภายใน ${RES} นาที</p>${machines.find(m=>m.id===id).st==='open'?'<div class="note" style="margin-top:12px">ผู้ใช้คนก่อนหน้ามารับผ้าช้าเกิน 15 นาที เมื่อจองแล้วคุณนำผ้าในเครื่องออกใส่ตะกร้าได้เลย</div>':''}
+  <div style="margin:14px 0"><div class="kv"><span class="sub">ค่าบริการ</span><b>฿${PRICE}</b></div><div class="kv"><span class="sub">ยอดคงเหลือ</span><b>฿${S.bal}</b></div><div class="kv"><span class="sub">หลังหักเงิน</span><b>฿${S.bal-PRICE}</b></div></div>
+  ${ok?`<button class="btn" onclick="pay(${id})">ยืนยันจอง · หัก ฿${PRICE}</button>`:`<p class="warn">ยอดเงินในกระเป๋าไม่เพียงพอ กรุณาเติมเงินก่อน</p><button class="btn" onclick="pendBook=${id};openTopup()">เติมเงิน</button>`}
+  <button class="btn ghost gap" onclick="closeSheet()">ยกเลิก</button>`);
+}
+function pay(id){
+  const mm=machines.find(m=>m.id===id),take=mm.st==='open';if(!['free','open'].includes(mm.st)){closeSheet();toast('เครื่องนี้เพิ่งมีผู้ใช้จองไปแล้ว');return}S.bal-=PRICE;mm.st='mine';
+  const h={ts:new Date(),id,pm:'กระเป๋าเงิน',p:PRICE,s:'จองแล้ว'};hist.unshift(h);
+  order={id,ph:'res',end:sim+RES*MIN,h,take};txns.unshift({ts:new Date(),t:'ค่าซักผ้า เครื่อง '+nm(id),a:-PRICE});
+  closeSheet();toast('ชำระเงินสำเร็จ หัก ฿'+PRICE+' จากกระเป๋าเงิน');
+  notify('pay','จองเครื่อง '+nm(id)+' สำเร็จ','หัก ฿'+PRICE+' จากกระเป๋าเงิน สแกน QR ที่เครื่องภายใน '+RES+' นาที');if(take)notify('late','นำผ้าเดิมออกได้เลย',TAKE,'laundry');show('laundry');
+}
+
+/* ---------- my laundry ---------- */
+function renderLaundry(){
+  const el=$('#lb');lastPh=order?order.ph:'none';
+  if(!order){el.innerHTML=`<div class="card empty"><div class="ico" style="margin:0 auto 12px;width:56px;height:56px">${ic('washer',28)}</div><p style="margin-bottom:16px">ยังไม่มีรายการซักผ้า<br>เลือกเครื่องที่ว่างเพื่อจองได้เลย</p><button class="btn" onclick="show('home')">ดูเครื่องที่ว่าง</button></div>`;return}
+  const P={res:['var(--p)','จองแล้ว · เครื่อง ','เวลาที่เหลือสำหรับสแกน QR',1],load:['var(--p)','ยืนยันตัวตนแล้ว · เครื่อง ','',2],wash:['var(--red)','กำลังซักผ้า · เครื่อง ','เวลาซักที่เหลือ',3],done:['var(--yellow)','ซักเสร็จแล้ว · เครื่อง ','',4],lost:['var(--yellow)','เกินเวลารับผ้า · เครื่อง ','',4]}[order.ph];
+  const act={load:order.det?'<button class="btn ghost" disabled>เครื่องกำลังตรวจจับผ้า…</button>':'<button class="btn ghost" onclick="startMachine()">จำลอง: กดปุ่มสตาร์ทที่เครื่อง</button>',res:'<button class="btn" onclick="show(\'scan\')">สแกน QR ที่เครื่อง</button>',wash:'<button class="btn ghost" disabled>ระบบจะแจ้งเตือนเมื่อผ้าใกล้เสร็จ</button>',done:'<button class="btn yellow" onclick="collect()">รับผ้า (Collect)</button>',lost:'<button class="btn yellow" onclick="collect()">รับผ้า (Collect)</button>'}[order.ph];
+  const note=order.ph==='load'?'<div class="note">'+(order.take?'ผู้ใช้คนก่อนหน้ามารับผ้าช้า คุณนำผ้าเดิมในเครื่องออกใส่ตะกร้าก่อนได้เลย<br><br>':'')+'1) เปิดฝาและนำผ้าใส่เครื่อง<br>2) ปิดฝาให้สนิท<br>3) กดปุ่มสตาร์ทที่เครื่อง<br><br>เครื่องจะตรวจจับว่ามีผ้าอยู่ข้างใน และเริ่มทำงานให้อัตโนมัติ</div>':order.ph==='res'&&order.take?'<div class="note">'+TAKE+'</div>':order.ph==='done'?'<div class="note">มีคนรอคิวเครื่องนี้อยู่ ระบบจะเตือนเมื่อครบ 5 และ 10 นาที และเปิดให้คิวถัดไปจองเมื่อเกิน 15 นาที</div>':order.ph==='lost'?'<div class="note">คุณมารับผ้าช้าเกิน 15 นาที เครื่องนี้เปิดให้คิวถัดไปจองแล้ว หากมีคนจอง ผ้าของคุณจะถูกนำออกใส่ตะกร้า กรุณาติดต่อผู้ดูแลหอพักหากต้องการความช่วยเหลือ</div>':'';
+  el.innerHTML=`<div class="card hero s-${order.ph==='wash'?'wash':order.ph==='done'?'done':order.ph==='lost'?'open':'mine'}" style="--c:${P[0]}">
+   <div class="drum"></div><p class="sub">${P[1]}${nm(order.id)}</p><div class="big" id="bigT"></div><p class="sub" id="subT">${P[2]}</p>
+   <div class="steps"><span class="${P[3]>=1?'on':''}">จอง</span><span class="${P[3]>=2?'on':''}">ใส่ผ้า</span><span class="${P[3]>=3?'on':''}">กำลังซัก</span><span class="${P[3]>=4?'on':''}">รอเก็บผ้า</span></div>${note}${act}</div>`;
+  updLaundry(true);
+}
+function updLaundry(force){
+  const ph=order?order.ph:'none';
+  if(!force&&ph!==lastPh)return renderLaundry();
+  if(!order)return;const m=machines.find(x=>x.id===order.id),b=$('#bigT');if(!b)return;
+  if(ph==='load'){b.textContent='นำผ้าใส่เครื่อง';b.style.fontSize='30px';$('#subT').textContent=order.det?'เครื่องกำลังตรวจจับผ้า…':'ยืนยันตัวตนสำเร็จ แล้วกดสตาร์ทที่เครื่อง'}else if(ph==='res'||ph==='wash')b.textContent=fmt(order.end-sim);
+  else if(ph==='done'){const l=(sim-m.at)/MIN;b.textContent='+'+fmt(sim-m.at);$('#subT').textContent=`มารับช้า ${Math.floor(l)} นาที · เครื่องจะเปิดให้คิวถัดไปจองในอีก ${Math.max(0,Math.ceil(15-l))} นาที`}
+  else{b.textContent='+'+fmt(sim-m.at);$('#subT').textContent='เครื่องเปิดให้คิวถัดไปจองแล้ว'}
+}
+function collect(){machines.find(m=>m.id===order.id).st='free';order.h.s='รับผ้าแล้ว';order=null;toast('รับผ้าเรียบร้อย เครื่องกลับมาว่างแล้ว');renderLaundry()}
+function ack(){order=null;renderLaundry()}
+let scanning=false;
+function startMachine(){
+  if(!order||order.ph!=='load'||order.det)return;order.det=true;renderLaundry();
+  setTimeout(()=>toast('เครื่องตรวจพบผ้าในเครื่องแล้ว (ประมาณ '+rnd(2.5,6).toFixed(1)+' กก.)'),900);
+  setTimeout(()=>{if(!order)return;const m=machines.find(x=>x.id===order.id);m.st='wash';m.end=sim+WASH*MIN;order.ph='wash';order.end=m.end;order.det=false;order.h.s='กำลังซัก';toast('เครื่อง '+nm(m.id)+' เริ่มทำงานแล้ว');if(document.querySelector('.view.active').id==='v-laundry')renderLaundry()},2300);
+}
+function doScan(){
+  if(scanning||!order||order.ph!=='res')return;scanning=true;$('#frame').classList.add('ok');$('#stx').textContent='กำลังตรวจสอบ…';
+  setTimeout(()=>{scanning=false;toast('สแกน QR สำเร็จ');const m=machines.find(x=>x.id===order.id);order.ph='load';order.h.s='รอใส่ผ้า';show('laundry');setTimeout(()=>toast('ยืนยันตัวตนแล้ว นำผ้าใส่เครื่อง แล้วกดสตาร์ทที่เครื่อง'),600)},700);
+}
+
+/* ---------- wallet + top-up ---------- */
+function renderWallet(){
+  $('#wb').innerHTML=`<div class="wal"><p style="opacity:.8;font-size:13px">ยอดคงเหลือ</p><p style="font-size:38px;font-weight:700;margin:2px 0 14px">฿${S.bal}</p><button class="btn" style="background:#fff;color:#2540D9;display:flex;gap:8px;align-items:center;justify-content:center" onclick="pendBook=null;openTopup()">${ic('plus',20)}เติมเงิน</button></div>
+  <h3 style="margin:22px 0 8px;font-size:16px">รายการล่าสุด</h3><div class="card">${txns.length?'':'<p class="sub" style="text-align:center;padding:18px 0">ยังไม่มีรายการ เติมเงินเพื่อเริ่มใช้งาน</p>'}${txns.map(t=>`<div class="row"><div class="t"><b>${t.t}</b><span class="sub">${fd(t.ts)} ${ft(t.ts)}</span></div><span class="${t.a>0?'pl':'mi'}">${t.a>0?'+':'-'}฿${Math.abs(t.a)}</span></div>`).join('')}</div>`;
+}
+let tA=100,tM='pp',pendBook=null,pendTop=false;
+function openTopup(){
+  const tm=S.tm?`หักจาก ${mask(S.tm)}`:'ยังไม่ได้เชื่อมบัญชี แตะเพื่อเชื่อม';
+  openSheet(`<h3 style="font-size:19px">เติมเงินเข้ากระเป๋า</h3><p class="sub">เลือกจำนวนเงินและวิธีชำระ</p>
+  <div class="chips">${[50,100,200,500].map(a=>`<button class="${a===tA?'on':''}" onclick="tA=${a};openTopup()">฿${a}</button>`).join('')}</div>
+  <button class="pm ${tM==='tm'?'on':''}" onclick="tM='tm';openTopup()"><b style="background:#F36F21">TM</b><span><span style="font-weight:600">ตัดจาก TrueMoney Wallet</span><br><small class="sub">${tm}</small></span></button>
+  <button class="pm ${tM==='pp'?'on':''}" onclick="tM='pp';openTopup()"><b style="background:#1A4D8F">PP</b><span><span style="font-weight:600">QR PromptPay</span><br><small class="sub">สแกนจ่ายผ่านแอปธนาคาร</small></span></button>
+  <button class="btn gap" onclick="topup()">เติมเงิน ฿${tA}</button><button class="btn ghost gap" onclick="closeSheet()">ยกเลิก</button>`);
+}
+function topup(){
+  if(tM==='tm'){if(!S.tm){closeSheet();toast('กรุณาเชื่อม TrueMoney Wallet ก่อน');pendTop=true;return sub('tmw',main)}return credit('TrueMoney Wallet')}
+  openSheet(`<h3 style="font-size:19px;text-align:center">สแกนจ่ายด้วย PromptPay</h3><p class="sub" style="text-align:center">ยอดชำระ ฿${tA}</p><div style="background:#fff;border-radius:18px;padding:14px;margin:16px auto;width:fit-content">${qr()}</div>
+  <button class="btn" onclick="credit('PromptPay')">จำลองการชำระเงินสำเร็จ</button><button class="btn ghost gap" onclick="openTopup()">ย้อนกลับ</button>`);
+}
+function credit(m){const pb=pendBook;pendBook=null;S.bal+=tA;txns.unshift({ts:new Date(),t:`เติมเงิน (${m==='PromptPay'?'QR PromptPay':m})`,a:tA});closeSheet();toast('เติมเงิน ฿'+tA+' สำเร็จ');notify('pay','เติมเงินสำเร็จ','เพิ่ม ฿'+tA+' เข้ากระเป๋าเงินผ่าน '+m,'wallet');if(pb!==null){show('home');book(pb)}else show(main==='laundry'?'laundry':'wallet')}
+function qr(){let r='',s=7;for(let y=0;y<25;y++)for(let x=0;x<25;x++){const f=(x<7&&y<7)||(x>17&&y<7)||(x<7&&y>17);let on;if(f){const ax=x<7?x:x-18,ay=y<7?y:y-18;on=ax==0||ax==6||ay==0||ay==6||(ax>1&&ax<5&&ay>1&&ay<5)}else{s=(s*9301+49297)%233280;on=s/233280>.5}if(on)r+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}return`<svg viewBox="0 0 25 25" width="200" height="200" fill="#000" shape-rendering="crispEdges">${r}</svg>`}
+const mask=p=>p.slice(0,3)+'-xxx-'+p.slice(6);
+
+/* ---------- profile & sub pages ---------- */
+const rw=(i,t,s,f)=>`<button class="row" onclick="${f}"><span class="ico">${ic(i,20)}</span><span class="t"><b>${t}</b><span class="sub">${s||''}</span></span>${ic('chev',18)}</button>`;
+function renderProfile(){
+  $('#pb').innerHTML=`<div class="card" style="display:flex;gap:14px;align-items:center;margin-bottom:14px"><div class="av" style="width:56px;height:56px;font-size:22px">${S.name[0]||'?'}</div><div><b style="font-size:18px">${S.name}</b><p class="sub">${S.email}</p></div></div>
+  <div class="card">${rw('user','บัญชีผู้ใช้','เปลี่ยนชื่อที่แสดง',"sub('account')")}${rw('phone','TrueMoney Wallet',S.tm?'เชื่อมแล้ว '+mask(S.tm):'ยังไม่ได้เชื่อม',"sub('tmw')")}${rw('clock','ประวัติการซัก','วัน เวลา และวิธีชำระเงิน',"sub('history')")}${rw('bell','ตั้งค่าการแจ้งเตือน','',"sub('settings')")}${rw('book','วิธีการใช้งาน','',"sub('howto')")}${rw('chat','ติดต่อ Support','หากพบปัญหาการใช้งาน',"sub('support')")}</div>
+  <button class="btn danger gap" style="margin-top:18px;display:flex;gap:8px;justify-content:center" onclick="logout()">${ic('out',20)}ออกจากระบบ</button>`;
+}
+const sw=(k,t,d)=>`<label class="row sw"><span class="t"><b>${t}</b><span class="sub">${d}</span></span><input type="checkbox" ${S.set[k]?'checked':''} onchange="S.set.${k}=this.checked"></label>`;
+const SUBS={
+ account:()=>['บัญชีผู้ใช้',`<div class="card"><label class="sub">ชื่อที่แสดง</label><input id="nm" class="field gap" style="margin-top:6px" value="${S.name}" maxlength="24"><label class="sub" style="display:block;margin-top:14px">บัญชีที่ใช้เข้าสู่ระบบ</label><input class="field" style="margin-top:6px;opacity:.7" value="${S.email}" disabled><label class="sub" style="display:block;margin-top:14px">เบอร์โทรที่ยืนยันแล้ว</label><input class="field" style="margin-top:6px;opacity:.7" value="${mask(S.phone||'0000000000')}" disabled><button class="btn gap" style="margin-top:18px" onclick="saveName()">บันทึก</button></div>`],
+ tmw:()=>['TrueMoney Wallet',`<div class="card">${S.tm?`<div class="row"><span class="ico" style="background:#F36F21;color:#fff">${ic('phone',20)}</span><span class="t"><b>เชื่อมต่อแล้ว</b><span class="sub">${mask(S.tm)}</span></span></div>`:'<p class="sub">เชื่อมเบอร์ TrueMoney เพื่อเติมเงินเข้ากระเป๋าได้ทันที</p>'}
+ <label class="sub" style="display:block;margin-top:14px">${S.tm?'เปลี่ยนเบอร์ที่เชื่อม':'เบอร์โทรศัพท์'}</label><input id="ph" class="field" style="margin-top:6px" inputmode="numeric" maxlength="10" placeholder="08XXXXXXXX"><div id="pe" class="warn"></div>
+ <button class="btn" onclick="linkTm()">${S.tm?'เปลี่ยนเบอร์':'เชื่อมบัญชี'}</button>${S.tm?'<button class="btn danger gap" onclick="S.tm=null;toast(\'ยกเลิกการเชื่อมแล้ว\');sub(\'tmw\')">ยกเลิกการเชื่อม</button>':''}</div>`],
+ history:()=>['ประวัติการซัก',`<div class="card">${hist.length?'':'<p class="sub" style="text-align:center;padding:18px 0">ยังไม่มีประวัติการซัก จองเครื่องแรกของคุณได้เลย</p>'}${hist.map(h=>`<div class="row"><span class="ico">${ic('washer',20)}</span><span class="t"><b>เครื่อง ${nm(h.id)} · ฿${h.p}</b><span class="sub">${fd(h.ts)} · ${ft(h.ts)}<br>ชำระด้วย${h.pm} · ${h.s}</span></span></div>`).join('')}</div>`],
+ settings:()=>['ตั้งค่าการแจ้งเตือน',`<div class="card">${sw('wash','ผ้าใกล้เสร็จ / ซักเสร็จ','แจ้งเมื่อเหลือ 3 นาที และเมื่อซักเสร็จ')}${sw('late','เตือนรับผ้าช้า','เตือนที่ 5 และ 10 นาทีหลังซักเสร็จ')}${sw('pay','การจองและการชำระเงิน','สรุปการหักเงินและเติมเงิน')}${sw('news','ข่าวสารจากหอพัก','ประกาศปิดปรับปรุงเครื่อง')}</div>
+ <h3 style="margin:22px 0 4px;font-size:16px">สำหรับผู้ทดลองแอป</h3><div class="card"><b style="font-weight:500">ความเร็วของเวลา</b><p class="sub">ค่าเริ่มต้นคือเวลาจริง ปรับให้เร็วขึ้นเพื่อดูครบทุกขั้นตอน</p><div class="seg">${[[1,'เวลาจริง'],[10,'เร็ว 10 เท่า'],[60,'1 วินาที = 1 นาที'],[300,'1 วินาที = 5 นาที']].map(a=>`<button class="${S.speed===a[0]?'on':''}" onclick="S.speed=${a[0]};toast('ตั้งความเร็วแล้ว');sub('settings')">${a[1]}</button>`).join('')}</div></div>`],
+ howto:()=>['วิธีการใช้งาน',`<div class="card">${['เติมเงินเข้ากระเป๋าผ่าน TrueMoney Wallet หรือ QR PromptPay','เลือกเครื่องสีเขียวแล้วกดจอง ระบบหักค่าบริการจากกระเป๋าเงิน','เดินไปที่เครื่องและสแกน QR ภายใน 15 นาที เพื่อยืนยันตัวตน แล้วนำผ้าใส่เครื่องและกดสตาร์ท เครื่องจะตรวจจับผ้าและเริ่มทำงานเอง','รอซักผ้า ระบบแจ้งเตือนเมื่อใกล้เสร็จ','มารับผ้าแล้วกด “รับผ้า” เพื่อปล่อยเครื่องให้คนถัดไป'].map((t,i)=>`<div class="step"><b>${i+1}</b><span>${t}</span></div>`).join('')}</div>
+ <div class="note" style="margin-top:14px;background:var(--card)">หากมารับผ้าช้า ระบบเตือนที่ 5 และ 10 นาที และเปิดเครื่องให้คิวถัดไปจองเมื่อเกิน 15 นาที</div>`],
+ support:()=>['ติดต่อ Support',`<div class="card"><label class="sub">หัวข้อปัญหา</label><div class="seg" id="tp">${['เครื่องไม่ทำงาน','ชำระเงิน/เติมเงิน','สแกน QR ไม่ได้','อื่น ๆ'].map((t,i)=>`<button class="${i?'':'on'}" onclick="document.querySelectorAll('#tp button').forEach(b=>b.classList.toggle('on',b===this))">${t}</button>`).join('')}</div>
+ <textarea id="sm" class="field" placeholder="อธิบายปัญหาที่พบ"></textarea><button class="btn gap" style="margin-top:14px" onclick="sendSup()">ส่งเรื่อง</button></div><p class="sub" style="margin-top:14px;text-align:center">ทีมงานตอบกลับทางอีเมลภายใน 1 วันทำการ</p>`],
+ notif:()=>['การแจ้งเตือน',notifs.length?`<div class="card">${notifs.map((n,i)=>`<button class="nt" onclick="show('${n.go}')"><span class="u r"></span><span style="flex:1"><b style="font-weight:600">${n.title}</b><br><span class="sub" style="color:var(--text)">${n.body}</span><br><span class="sub">${fd(n.ts)} ${ft(n.ts)}</span></span></button>`).join('')}</div><button class="btn ghost gap" onclick="notifs=[];badge();sub('notif',subBack)">ล้างทั้งหมด</button>`:'<div class="card empty">ยังไม่มีการแจ้งเตือน</div>']
+};
+function sub(n,back='profile'){subBack=back;const [t,h]=SUBS[n]();$('#st').textContent=t;$('#sbd').innerHTML=h;show('sub');if(n==='notif'){notifs.forEach(x=>x.read=true);badge();$('#push').classList.remove('show')}}
+function saveName(){const v=$('#nm').value.trim();if(!v)return toast('กรุณากรอกชื่อที่แสดง');S.name=v;toast('บันทึกชื่อที่แสดงแล้ว');show('profile')}
+function linkTm(){const v=$('#ph').value.trim();if(!/^0\d{9}$/.test(v)){$('#pe').textContent='กรุณากรอกเบอร์โทร 10 หลักที่ขึ้นต้นด้วย 0';return}S.tm=v;toast('เชื่อม TrueMoney Wallet สำเร็จ');if(pendTop){pendTop=false;show(main);return openTopup()}sub('tmw')}
+function sendSup(){if(!$('#sm').value.trim())return toast('กรุณาอธิบายปัญหา');toast('ส่งเรื่องถึงทีมงานแล้ว');show('profile')}
+
+/* ---------- clock tick (every 250ms real; sim advances by speed) ---------- */
+const TAKE='ผู้ใช้คนก่อนหน้ามารับผ้าช้าเกิน 15 นาที คุณนำผ้าในเครื่องออกใส่ตะกร้าได้เลย แล้วสแกน QR ที่เครื่อง';const QMSG='เจ้าของผ้าเดิมมารับช้าเกินกำหนด คุณสามารถนำผ้าในเครื่องออกมาใส่ตะกร้าและเริ่มซักผ้าของคุณได้เลย';
+/* simulated other users: book -> scan -> wash -> collect (some late) -> next in queue */
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const lateMin=()=>{const x=Math.random();return x<.5?rnd(0,3):x<.8?rnd(3,10):x<.93?rnd(10,15):rnd(16,25)};
+function npcStart(m){m.st='res';m.sc=sim+rnd(2,8)*MIN}
+function npcFree(m){if(m.q>0){m.q--;npcStart(m)}else{m.st='free';m.nxt=sim+rnd(1,8)*MIN}}
+function npc(m){
+  if(m.st==='res'&&sim>=m.sc){m.st='wash';m.end=sim+rnd(38,50)*MIN;m.q=Math.random()<.4?1:0}
+  else if(m.st==='done'&&sim>=m.coll)npcFree(m);
+  else if(m.st==='free'&&sim>=m.nxt){if(machines.filter(x=>x.st==='free').length>1||order)npcStart(m);else m.nxt=sim+2*MIN}
+}
+function tick(){
+  sim+=250*S.speed;
+  machines.forEach(m=>{
+    const mine=order&&order.id===m.id;
+    if(m.st==='open'&&sim>=m.takeAt){
+      if(mine){order.h.s='ผ้าถูกนำออกใส่ตะกร้า';notify('late','ผ้าของคุณถูกนำออกใส่ตะกร้า','มีผู้ใช้จองเครื่อง '+nm(m.id)+' ต่อ ผ้าของคุณถูกนำออกใส่ตะกร้าแล้ว กรุณาติดต่อผู้ดูแลหอพัก');order=null}
+      else if(m.queued){m.queued=false;notify('late','เครื่อง '+nm(m.id)+' มีผู้ใช้ในคิวจองไปแล้ว','มีผู้ใช้ที่เข้าคิวก่อนจองเครื่องนี้ต่อ ลองเลือกเครื่องอื่นที่ว่าง','home')}
+      if(m.q>0)m.q--;npcStart(m);
+    }
+    if(!mine)npc(m);
+    if(m.st==='wash'&&sim>=m.end){m.st='done';m.at=m.end;m.coll=m.at+lateMin()*MIN;if(mine&&order.ph==='wash'){order.ph='done';order.h.s='ซักเสร็จ รอเก็บผ้า';notify('wash','ซักเสร็จแล้ว','เครื่อง '+nm(m.id)+' ซักเสร็จแล้ว มารับผ้าได้เลย')}}
+    if(m.st==='done'){
+      const l=(sim-m.at)/MIN;
+      if(mine&&order.ph==='done'){
+        if(l>=5&&!order.n5){order.n5=1;notify('late','ผ้าของคุณเสร็จ 5 นาทีแล้ว','ผ้าของคุณเสร็จ 5 นาทีแล้ว มีคนรอคิวอยู่')}
+        if(l>=10&&!order.n10){order.n10=1;notify('late','ผ้าของคุณเสร็จ 10 นาทีแล้ว','ผ้าของคุณเสร็จ 10 นาทีแล้ว มีคนรอคิวอยู่ รีบลงมารับผ้านะ')}
+      }
+      if(l>=15){m.st='open';m.openAt=sim;m.takeAt=sim+(m.queued?rnd(5,8):rnd(2,6))*MIN;if(mine&&order.ph==='done'){order.ph='lost';order.h.s='เกินเวลา เปิดให้คิวถัดไปจอง';notify('late','เครื่อง '+nm(m.id)+' เปิดให้คิวถัดไปจองแล้ว','คุณมารับผ้าช้าเกิน 15 นาที เครื่องนี้เปิดให้คิวถัดไปจองแล้ว หากมีคนจอง ผ้าของคุณจะถูกนำออกใส่ตะกร้า กรุณาติดต่อผู้ดูแลหอพักหากต้องการความช่วยเหลือ','laundry')}else if(m.queued)notify('late','ถึงคิวของคุณแล้ว: เครื่อง '+nm(m.id),'ผู้ใช้คนก่อนหน้ามารับผ้าช้าเกิน 15 นาที กดจองเพื่อใช้เครื่องต่อได้เลย และนำผ้าเดิมออกได้','home')}
+    }
+  });
+  if(order){
+    if(order.ph==='res'&&sim>=order.end){machines.find(m=>m.id===order.id).st='free';order.h.s='หมดเวลาจอง';order=null;notify('pay','หมดเวลาจอง','ไม่ได้สแกน QR ภายใน '+RES+' นาที เครื่องกลับมาว่างแล้ว','home')}
+    else if(order.ph==='wash'&&!order.nw&&order.end-sim<=3*MIN){order.nw=1;notify('wash','ผ้าใกล้ซักเสร็จแล้ว','ผ้าใกล้ซักเสร็จแล้ว เตรียมตัวลงมารับได้เลย')}
+  }
+  const v=document.querySelector('.view.active').id;
+  if(v==='v-home')updGrid();else if(v==='v-laundry')updLaundry();
+}
+setInterval(tick,250);
+</script>
+</body>
+</html>
